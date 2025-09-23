@@ -1,43 +1,66 @@
-programa       = { clase }, methodMain ;
+programa       = { clase } , metodoPrincipal ;
 
-clase          = "Class", identificador, [ "extends", identificador ],
-                  "{", { miembro }, "}" ;
+clase          = "Class" , identificador , [ "extends" , identificador ] ,
+                 "{" , { miembro } , "}" ;
 
 miembro        = atributo | metodo ;
 
-atributo       = tipo, identificador, [ "=", expresion ], ";" ;
+atributo       = tipo , identificador , ";" 
+               | "string" , "[" , "]" , identificador , "=" , lista , ";" ;
 
-metodo         = "method", identificador,
-                  "{", { instruccion }, "}" ;
+metodo         = "method" , identificador , "{" , { instruccion } , "}" ;
 
-methodMain     = "methodMain",
-                  "{", { instruccion }, "}" ;
+metodoPrincipal= "methodMain" , "{" , { instruccion } , "}" ;
 
-tipo           = "int" | "string" | "string[]" | "bool" ;
+tipo           = "int" | "string" | "bool" ;
 
-instruccion    = asignacion | impresion | llamada | comentario ;
+instruccion    = asignacion | impresion | llamada | comentario
+               | ifStmt | whileStmt | forStmt | returnStmt ;
 
-asignacion     = identificador, "=", expresion, ";" ;
+asignacion     = identificador , "=" , expresion , ";" ;
 
-impresion      = "print", "(", expresion, ")", ";" ;
+impresion      = "print" , "(" , expresion , ")" , ";" ;
 
-llamada        = identificador, "(", [ argumentos ], ")", ";" ;
+llamada        = identificador , "(" , [ listaArgumentos ] , ")" , ";" ;
 
-argumentos     = expresion, { ",", expresion } ;
+comentario     = "/*" , { caracter } , "*/" | "//" , { caracter } ;
 
-expresion      = termino, { ("+" | "-" | "*"), termino } ;
+ifStmt         = "if" , "(" , expresion , ")" , bloque , [ "else" , bloque ] ;
 
-termino        = numero | cadena | booleano | identificador | lista | "null" ;
+whileStmt      = "while" , "(" , expresion , ")" , bloque ;
 
-lista          = "[", [ cadena, { ",", cadena } ], "]" ;
+forStmt        = "for" , "(" , [ asignacion ] , ";" , [ expresion ] , ";" ,
+                 [ asignacion ] , ")" , bloque ;
+
+returnStmt     = "return" , [ expresion ] , ";" ;
+
+bloque         = "{" , { instruccion } , "}" ;
+
+expresion      = comparacion , { ("&&" | "||") , comparacion } ;
+
+comparacion    = suma , { ("==" | "!=" | "<" | ">" | "<=" | ">=") , suma } ;
+
+suma           = termino , { ("+" | "-") , termino } ;
+
+termino        = factor , { "*" , factor } ;
+
+factor         = numero | cadena | booleano | identificador | lista 
+               | "null" | "(" , expresion , ")" ;
+
+lista          = "[" , [ cadena , { "," , cadena } ] , "]" ;
+
+listaArgumentos= expresion , { "," , expresion } ;
+
+identificador  = letra , { letra | digito | "_" } ;
+
+numero         = digito , { digito } ;
+
+cadena         = '"' , { caracter } , '"' ;
 
 booleano       = "true" | "false" ;
-numero         = digito, { digito } ;
-cadena         = '"', { caracter }, '"' ;
-comentario     = "//", { caracter } ;
 
-identificador  = letra, { letra | digito | "_" } ;
+letra          = "A"…"Z" | "a"…"z" | "_" ;
 
-digito         = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-letra          = "A" | "B" | ... | "Z" | "a" | ... | "z" ;
-caracter       = letra | digito | " " | "_" | "." ;
+digito         = "0"…"9" ;
+
+caracter       = ? cualquier símbolo válido excepto salto de línea o cierre ? ;
