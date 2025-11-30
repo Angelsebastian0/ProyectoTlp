@@ -1,0 +1,36 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/**",
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/src",
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/third_party",
+                "/usr/include",
+                "/usr/include/SDL2"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "WindowsXP",
+            "includePath": [
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/**",
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/src",
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/third_party",
+                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/SDL2/include"
+            ],
+            "defines": [
+                "_WIN32"
+            ],
+            "compilerPath": "C:/MinGW/bin/g++.exe",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "windows-gcc-x86"
+        }
+    ],
+    "version": 4
+}

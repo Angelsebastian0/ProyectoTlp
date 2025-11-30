@@ -1,0 +1,71 @@
+{
+  "node": "Root",
+  "children": [
+    {
+      "node": "Class",
+      "props": { "name": "Game" },
+      "children": [
+        {
+          "node": "Method",
+          "props": { "name": "init" },
+          "children": [
+            {
+              "node": "Call",
+              "props": {
+                "name": "spawnBlock",
+                "args": ["I", 5, 0]
+              }
+            },
+            {
+              "node": "Call",
+              "props": {
+                "name": "setScore",
+                "args": [0]
+              }
+            },
+            {
+              "node": "Call",
+              "props": {
+                "name": "drawText",
+                "args": ["Tetris", 0, 0]
+              }
+            }
+          ]
+        },
+        {
+          "node": "Method",
+          "props": { "name": "update" },
+          "children": [
+            {
+              "node": "Call",
+              "props": {
+                "name": "moveEntity",
+                "args": [1, 0, 1]
+              }
+            },
+            {
+              "node": "Call",
+              "props": {
+                "name": "addScore",
+                "args": [10]
+              }
+            }
+          ]
+        },
+        {
+          "node": "Method",
+          "props": { "name": "end" },
+          "children": [
+            {
+              "node": "Call",
+              "props": {
+                "name": "endGame",
+                "args": ["Tetris: end"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

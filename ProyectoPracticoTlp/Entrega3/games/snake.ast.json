@@ -1,0 +1,64 @@
+{
+  "node": "Root",
+  "children": [
+    {
+      "node": "Class",
+      "props": { "name": "Game" },
+      "children": [
+        {
+          "node": "Method",
+          "props": { "name": "init" },
+          "children": [
+            {
+              "node": "Call",
+              "props": {
+                "name": "spawnBlock",
+                "args": ["snake_head", 5, 10]
+              }
+            },
+            {
+              "node": "Call",
+              "props": {
+                "name": "spawnBlock",
+                "args": ["Food", 2, 5]
+              }
+            },
+            {
+              "node": "Call",
+              "props": {
+                "name": "setScore",
+                "args": [0]
+              }
+            }
+          ]
+        },
+        {
+          "node": "Method",
+          "props": { "name": "update" },
+          "children": [
+            {
+              "node": "Call",
+              "props": {
+                "name": "moveEntity",
+                "args": [1, 0, 0]
+              }
+            }
+          ]
+        },
+        {
+          "node": "Method",
+          "props": { "name": "end" },
+          "children": [
+            {
+              "node": "Call",
+              "props": {
+                "name": "endGame",
+                "args": ["Snake: end"]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
