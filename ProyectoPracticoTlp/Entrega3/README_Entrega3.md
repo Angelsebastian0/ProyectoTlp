@@ -9,6 +9,11 @@
 make
 ```
 
+### En Windows (CMD)
+- Asegúrate de tener g++ de MinGW/Dev-C++ 5 en el PATH.
+- Ejecuta `run.bat` desde la carpeta `Entrega3` (compila automáticamente si falta el ejecutable).
+- Puedes pasar directamente el script a ejecutar: `run.bat games\snake.script`.
+
 ## Ejecutar
 ```bash
 ./bin/motor_integration games/snake.script
