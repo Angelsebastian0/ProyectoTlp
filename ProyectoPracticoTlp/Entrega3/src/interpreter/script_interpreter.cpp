@@ -2,138 +2,135 @@
 #include "../engine/api.h"
 #include <fstream>
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <sstream>
+#include <cstdlib>
+
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
 
 ScriptInterpreter::ScriptInterpreter() {}
 
+static std::string trim(const std::string &s) {
+    size_t start = s.find_first_not_of(" \t\r\n");
+    if (start == std::string::npos) return "";
+    size_t end = s.find_last_not_of(" \t\r\n");
+    return s.substr(start, end - start + 1);
+}
+
 bool ScriptInterpreter::loadASTFile(const std::string &path) {
-    std::ifstream f(path);
+    std::ifstream f(path.c_str());
     if(!f.is_open()) {
         std::cerr << "No se pudo abrir " << path << "\n";
         return false;
     }
-    json ast;
-    try {
-        f >> ast;
-    } catch(std::exception &e) {
-        std::cerr << "Error parseando JSON: " << e.what() << "\n";
-        return false;
-    }
 
-    // Esperamos un AST con root.children array
-    if(!ast.contains("children") || !ast["children"].is_array()) {
-        std::cerr << "AST no tiene 'children' como array\n";
-        return false;
-    }
+    methods.clear();
 
-    for(auto &node : ast["children"]) {
-        if(!node.contains("node")) continue;
-        std::string nodename = node["node"].get<std::string>();
-        if(nodename == "Class") {
-            GameClass gc;
-            if(node.contains("props") && node["props"].contains("name"))
-                gc.name = node["props"]["name"].get<std::string>();
-            // buscar metodos
-            if(node.contains("children") && node["children"].is_array()) {
-                for(auto &child : node["children"]) {
-                    if(!child.contains("node")) continue;
-                    std::string cn = child["node"].get<std::string>();
-                    if(cn == "Method") {
-                        Method m;
-                        if(child.contains("props") && child["props"].contains("name"))
-                            m.name = child["props"]["name"].get<std::string>();
-                        if(child.contains("children")) m.body = child["children"];
-                        gc.methods[m.name] = m;
-                    }
-                }
+    std::string line;
+    Method current;
+    bool hasCurrent = false;
+
+    while (std::getline(f, line)) {
+        line = trim(line);
+        if (line.empty() || line[0] == '#') continue;
+
+        if (line[0] == '[' && line[line.size()-1] == ']') {
+            if (hasCurrent) {
+                methods[current.name] = current;
             }
-            classes[gc.name] = gc;
+            current = Method();
+            current.name = line.substr(1, line.size() - 2);
+            current.commands.clear();
+            hasCurrent = true;
+            continue;
         }
+
+        std::istringstream iss(line);
+        Command cmd;
+        if (!(iss >> cmd.name)) continue;
+        std::string token;
+        while (iss >> token) {
+            cmd.args.push_back(token);
+        }
+        current.commands.push_back(cmd);
     }
-    std::cout << "AST cargado. Clases encontradas: " << classes.size() << "\n";
-    for(auto &p: classes) std::cout<<" - "<<p.first<<"\n";
-    return true;
+
+    if (hasCurrent) {
+        methods[current.name] = current;
+    }
+
+    std::cout << "[Interpreter] Script cargado. Metodos: " << methods.size() << "\n";
+    return !methods.empty();
 }
 
-void ScriptInterpreter::executeCall(const json &callNode) {
-    // Espera: { "node":"Call", "props": {"name":"spawnBlock", "args":[...] } }
-    if(!callNode.contains("props") || !callNode["props"].contains("name")) return;
-    std::string name = callNode["props"]["name"].get<std::string>();
-    auto args = callNode["props"].value("args", json::array());
-
-    if(name == "spawnBlock") {
-        std::string type = args.size() > 0 ? args[0].get<std::string>() : "default";
-        int x = args.size() > 1 ? args[1].get<int>() : 0;
-        int y = args.size() > 2 ? args[2].get<int>() : 0;
-        Engine::spawnBlock(type, Engine::Vec2{x,y});
-    } else if(name == "moveEntity") {
-        int id = args.size()>0 ? args[0].get<int>() : 0;
-        int dx = args.size()>1 ? args[1].get<int>() : 0;
-        int dy = args.size()>2 ? args[2].get<int>() : 0;
-        Engine::moveEntity(id, Engine::Vec2{dx,dy});
-    } else if(name == "rotateEntity") {
-        int id = args.size()>0 ? args[0].get<int>() : 0;
+void ScriptInterpreter::executeCommand(const Command &cmd) {
+    if (cmd.name == "spawnBlock") {
+        std::string type = cmd.args.size() > 0 ? cmd.args[0] : "";
+        int x = cmd.args.size() > 1 ? std::atoi(cmd.args[1].c_str()) : 0;
+        int y = cmd.args.size() > 2 ? std::atoi(cmd.args[2].c_str()) : 0;
+        Engine::spawnBlock(type, x, y);
+    } else if (cmd.name == "moveEntity") {
+        int id = cmd.args.size() > 0 ? std::atoi(cmd.args[0].c_str()) : 0;
+        int dx = cmd.args.size() > 1 ? std::atoi(cmd.args[1].c_str()) : 0;
+        int dy = cmd.args.size() > 2 ? std::atoi(cmd.args[2].c_str()) : 0;
+        Engine::moveEntity(id, dx, dy);
+    } else if (cmd.name == "rotateEntity") {
+        int id = cmd.args.size() > 0 ? std::atoi(cmd.args[0].c_str()) : 0;
         Engine::rotateEntity(id);
-    } else if(name == "dropEntity") {
-        int id = args.size()>0 ? args[0].get<int>() : 0;
+    } else if (cmd.name == "dropEntity") {
+        int id = cmd.args.size() > 0 ? std::atoi(cmd.args[0].c_str()) : 0;
         Engine::dropEntity(id);
-    } else if(name == "addScore") {
-        int s = args.size()>0 ? args[0].get<int>() : 0;
-        Engine::addScore(s);
-    } else if(name == "setScore") {
-        int s = args.size()>0 ? args[0].get<int>() : 0;
-        Engine::setScore(s);
-    } else if(name == "endGame") {
-        std::string r = args.size()>0 ? args[0].get<std::string>() : "unknown";
-        Engine::endGame(r);
-    } else if(name == "drawText") {
-        std::string t = args.size()>0 ? args[0].get<std::string>() : "";
-        int x = args.size()>1 ? args[1].get<int>() : 0;
-        int y = args.size()>2 ? args[2].get<int>() : 0;
-        Engine::drawText(t,x,y);
+    } else if (cmd.name == "addScore") {
+        int delta = cmd.args.size() > 0 ? std::atoi(cmd.args[0].c_str()) : 0;
+        Engine::addScore(delta);
+    } else if (cmd.name == "setScore") {
+        int v = cmd.args.size() > 0 ? std::atoi(cmd.args[0].c_str()) : 0;
+        Engine::setScore(v);
+    } else if (cmd.name == "endGame") {
+        std::string reason = cmd.args.size() > 0 ? cmd.args[0] : "";
+        Engine::endGame(reason);
+    } else if (cmd.name == "drawText") {
+        std::string text = cmd.args.size() > 0 ? cmd.args[0] : "";
+        int x = cmd.args.size() > 1 ? std::atoi(cmd.args[1].c_str()) : 0;
+        int y = cmd.args.size() > 2 ? std::atoi(cmd.args[2].c_str()) : 0;
+        Engine::drawText(text, x, y);
     } else {
-        std::cout << "[Interpreter] Llamada desconocida: " << name << "\n";
-    }
-}
-
-void ScriptInterpreter::executeStatement(const json &stmt) {
-    if(!stmt.contains("node")) return;
-    std::string n = stmt["node"].get<std::string>();
-    if(n == "Call") {
-        executeCall(stmt);
-    } else {
-        // puedes ampliar más tipos (Assign, If, While...)
-        std::cout << "[Interpreter] Statement no manejado: " << n << "\n";
+        std::cout << "[Interpreter] Comando desconocido: " << cmd.name << "\n";
     }
 }
 
 void ScriptInterpreter::callMethod(const std::string &className, const std::string &methodName) {
-    auto it = classes.find(className);
-    if(it == classes.end()) {
-        std::cerr << "Clase " << className << " no encontrada\n";
+    (void)className; // mantenemos firma, pero no usamos clases
+    std::map<std::string, Method>::iterator it = methods.find(methodName);
+    if (it == methods.end()) {
+        std::cerr << "Metodo " << methodName << " no encontrado\n";
         return;
     }
-    auto &gc = it->second;
-    auto mit = gc.methods.find(methodName);
-    if(mit == gc.methods.end()) {
-        std::cerr << "Metodo " << methodName << " en clase " << className << " no encontrado\n";
-        return;
-    }
-    auto &body = mit->second.body;
-    if(!body.is_array()) return;
-    for(auto &stmt : body) {
-        executeStatement(stmt);
+
+    const std::vector<Command> &body = it->second.commands;
+    for (size_t i = 0; i < body.size(); ++i) {
+        executeCommand(body[i]);
     }
 }
 
 void ScriptInterpreter::runLoop(const std::string &className, const std::string &updateMethodName, int frames, int ms_per_frame) {
-    // llamar init si existe
     callMethod(className, "init");
-    for(int f=0; f<frames; ++f) {
+
+    for (int f = 0; f < frames && !Engine::isGameEnded(); ++f) {
+        Engine::presentFrame();
         callMethod(className, updateMethodName);
-        std::this_thread::sleep_for(std::chrono::milliseconds(ms_per_frame));
+#ifdef _WIN32
+        Sleep(ms_per_frame);
+#else
+        usleep(static_cast<useconds_t>(ms_per_frame) * 1000);
+#endif
+        if (!Engine::pollEvents()) break;
     }
-    // llamar end si existe
-    callMethod(className, "end");
+
+    if (!Engine::isGameEnded()) {
+        callMethod(className, "end");
+    }
 }

@@ -4,99 +4,97 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include <SDL.h>
 
-// Pequeña función que corre un juego dado el path del AST
-static int runGame(const std::string& ast_path,
-                   int frames = 1'000'000,
-                   int ms_per_frame = 120)   // un poco más lento para XP
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
+static void sleepMs(int ms) {
+#ifdef _WIN32
+    Sleep(static_cast<DWORD>(ms));
+#else
+    usleep(static_cast<useconds_t>(ms) * 1000);
+#endif
+}
+
+static int runGame(const std::string& script_path,
+                   int frames,
+                   int ms_per_frame)
 {
-    // Inicializar motor gráfico
     Engine::initEngine();
 
-    // Cargar intérprete y AST
     ScriptInterpreter interp;
-    if (!interp.loadASTFile(ast_path)) {
-        std::cerr << "Fallo cargando AST: " << ast_path << "\n";
+    if (!interp.loadASTFile(script_path)) {
+        std::cerr << "Fallo cargando script: " << script_path << "\n";
         Engine::shutdownEngine();
         return 1;
     }
 
     const std::string className = "Game";
 
-    // Llamar init()
     interp.callMethod(className, "init");
 
     int f = 0;
     while (f < frames && Engine::pollEvents() && !Engine::isGameEnded()) {
-        // Llamar update() definido en el AST
         interp.callMethod(className, "update");
-
-        // Dibujar frame con SDL
         Engine::presentFrame();
-
-        // Pequeña pausa entre frames
-        SDL_Delay(ms_per_frame);
+        sleepMs(ms_per_frame);
         ++f;
     }
 
-    // Si el motor no marcó fin de juego, llamamos end() del script
     if (!Engine::isGameEnded()) {
         interp.callMethod(className, "end");
     }
 
-    // Apagar motor gráfico
     Engine::shutdownEngine();
     return 0;
 }
 
 int main(int argc, char** argv)
 {
-    // ---------------------------------------------------------------------
-    // MODO 1: como antes, pasando el AST por parámetro
-    // ---------------------------------------------------------------------
     if (argc >= 2) {
-        std::string ast_path = argv[1];
-        int frames = 1'000'000;
+        std::string script_path = argv[1];
+        int frames = 1000000;
         int ms_per_frame = 120;
 
         if (argc >= 3) frames       = std::atoi(argv[2]);
         if (argc >= 4) ms_per_frame = std::atoi(argv[3]);
 
-        return runGame(ast_path, frames, ms_per_frame);
+        return runGame(script_path, frames, ms_per_frame);
     }
 
-    // ---------------------------------------------------------------------
-    // MODO 2: menú en consola (sin argumentos)
-    // ---------------------------------------------------------------------
     std::cout << "=====================================\n";
     std::cout << "   Proyecto Practico TLP - Entrega 3\n";
+    std::cout << "   Modo consola (sin SDL/JSON)\n";
     std::cout << "=====================================\n\n";
     std::cout << "Seleccione el juego a ejecutar:\n";
-    std::cout << "  1) Tetris\n";
-    std::cout << "  2) Snake\n\n";
+    std::cout << "  1) Tetris (demostracion basica)\n";
+    std::cout << "  2) Snake (demostracion basica)\n\n";
 
     int opcion = 0;
     while (opcion != 1 && opcion != 2) {
         std::cout << "Digite 1 o 2 y presione ENTER: ";
         if (!(std::cin >> opcion)) {
-            // Si hay error de entrada, limpiamos y volvemos a pedir
             std::cin.clear();
             std::cin.ignore(1024, '\n');
             opcion = 0;
         }
     }
 
-    std::string ast_path;
+    std::string script_path;
     switch (opcion) {
         case 1:
-            ast_path = "games/tetris.ast.json";
+            script_path = "games/tetris.script";
             break;
         case 2:
-            ast_path = "games/snake.ast.json";
+            script_path = "games/snake.script";
+            break;
+        default:
+            script_path = "games/snake.script";
             break;
     }
 
-    // Llamamos al motor con el AST seleccionado
-    return runGame(ast_path);
+    return runGame(script_path, 1000000, 120);
 }

@@ -1,5 +1,5 @@
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Ithird_party -Isrc
+CXXFLAGS := -std=gnu++98 -Wall -Isrc
 SRCDIR := src
 BINDIR := bin
 TARGET := $(BINDIR)/motor_integration
@@ -13,7 +13,7 @@ dirs:
 
 # Compilación directa sin objetos (más simple)
 $(TARGET): $(SRCDIR)/integration_main.cpp $(SRCDIR)/engine/api.cpp $(SRCDIR)/interpreter/script_interpreter.cpp
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(shell pkg-config --cflags --libs sdl2)
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 clean:
 	rm -rf $(BINDIR)

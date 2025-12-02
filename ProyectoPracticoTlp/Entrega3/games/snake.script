@@ -1,0 +1,11 @@
+# Script de consola para Snake
+[init]
+spawnBlock snake_head 5 10
+spawnBlock Food 2 5
+setScore 0
+
+[update]
+moveEntity 1 0 0
+
+[end]
+endGame Snake_end

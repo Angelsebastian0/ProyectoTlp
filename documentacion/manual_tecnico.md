@@ -13,16 +13,15 @@ El sistema está dividido en tres componentes principales:
    - Usa un analizador sintáctico que construye el Árbol de Sintaxis Abstracta (AST).
    - Gestiona una tabla de símbolos para los identificadores del lenguaje.
 
-2. **Motor Gráfico y de Juego (Entrega 2):**
-   - Crea una ventana de 640x480 píxeles.
-   - Contiene un bucle principal que gestiona eventos, actualizaciones y renderizado.
-   - Implementa funciones gráficas básicas para dibujar bloques, texto y puntuación.
-   - Incluye un módulo de control de entradas del teclado.
+2. **Motor de Juego (Entrega 2):**
+   - Bucle principal que gestiona eventos, actualizaciones y estado interno.
+   - Control básico de entradas por teclado.
+   - En la versión actual (para XP), el dibujo se hace en consola de texto.
 
-3. **Integración y Lógica del Juego (Entrega 3 - futura):**
+3. **Integración y Lógica del Juego (Entrega 3):**
    - Integra el analizador y el motor.
-   - El motor leerá reglas del lenguaje desde archivos `.brik`.
-   - Permitirá ejecutar juegos distintos sin recompilar el motor.
+   - El motor lee scripts simples en texto (`.script`) sin JSON ni SDL.
+   - Permite ejecutar juegos distintos sin recompilar el motor.
 
 ## 🧩 Componentes Clave
 - **GramaticaEBNF.txt:** define la estructura formal del mini-lenguaje.  
@@ -31,10 +30,10 @@ El sistema está dividido en tres componentes principales:
 - **main.cpp (Entrega1 y 2):** archivos fuente principales del proyecto.
 
 ## 💾 Requisitos de Sistema
-- Windows XP o posterior  
-- Procesador AMD Athlon XP o superior  
-- 512 MB RAM mínimo  
-- Compilador compatible con C++11 o superior
+- Windows XP o posterior
+- Procesador AMD Athlon XP o superior
+- 512 MB RAM mínimo
+- Compilador compatible con C++98/C++03 (Dev-C++ 5 con MinGW funciona)
 
 ## 🧰 Herramientas Recomendadas
 - **Visual Studio Code**
@@ -43,3 +42,8 @@ El sistema está dividido en tres componentes principales:
 
 ---
 > El código está documentado internamente con comentarios explicativos sobre cada módulo y función principal.
+
+## 🛠️ Guía rápida para compilar en Windows XP con Dev-C++ 5
+- El código ya está en modo consola y C++98/C++03, sin SDL ni JSON.
+- Abre `ProyectoPracticoTlp/Entrega3` en Dev-C++ 5, configura el estándar a `-std=gnu++98` y compila `integration_main.cpp` junto con `engine/api.cpp` y `interpreter/script_interpreter.cpp`.
+- No se requieren DLLs externas; el binario cabe en un disquete de 1.44 MB si se compila con `-Os -s`.

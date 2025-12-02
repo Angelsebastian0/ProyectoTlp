@@ -1,0 +1,12 @@
+# Script de consola para Tetris
+[init]
+spawnBlock I 5 0
+setScore 0
+drawText Tetris 0 0
+
+[update]
+moveEntity 1 0 1
+addScore 10
+
+[end]
+endGame Tetris_end
