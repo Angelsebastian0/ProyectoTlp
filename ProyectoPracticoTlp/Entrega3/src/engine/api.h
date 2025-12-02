@@ -1,13 +1,14 @@
-#pragma once
+#ifndef ENGINE_API_H
+#define ENGINE_API_H
 
 #include <string>
 
 namespace Engine {
 
     // Parámetros básicos del tablero
-    constexpr int TILE_SIZE    = 32;
-    constexpr int BOARD_WIDTH  = 10;   // 10 columnas
-    constexpr int BOARD_HEIGHT = 20;   // 20 filas
+    const int TILE_SIZE    = 32;
+    const int BOARD_WIDTH  = 10;   // 10 columnas
+    const int BOARD_HEIGHT = 20;   // 20 filas
 
     // Pequeño vector 2D que usaba el intérprete
     struct Vec2 {
@@ -20,8 +21,8 @@ namespace Engine {
     void shutdownEngine();
 
     // Loop principal
-    bool pollEvents();      // Procesa eventos SDL (cierra con X o ESC)
-    void presentFrame();    // Dibuja todo en pantalla
+    bool pollEvents();      // Procesa eventos de consola (teclas)
+    void presentFrame();    // Dibuja el estado en texto
 
     // API principal que usa ahora el motor
     int  spawnBlock(const std::string& type, int gridX, int gridY);
@@ -46,3 +47,5 @@ namespace Engine {
     void endGame(const std::string& r);
     void drawText(const std::string& t, int x, int y);
 }
+
+#endif // ENGINE_API_H

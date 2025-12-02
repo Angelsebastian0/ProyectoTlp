@@ -18,6 +18,11 @@ El proyecto se diseña para ejecutarse en entornos de hardware restringido (Wind
 - Herramientas: compilador g++, VS Code
 - Enfoque modular: analizador léxico y sintáctico, motor de renderizado, gestión de entradas
 
+## 💡 Compatibilidad con Windows XP y Dev-C++ 5
+- El código de la entrega 3 usa solo C++98/C++03 y consola de texto; ya no depende de SDL2, SDL_ttf ni `nlohmann::json`.
+- Puedes compilar directamente con Dev-C++ 5 (MinGW32) sin instalar librerías externas. Ajusta el proyecto a `-std=gnu++98` si tu toolchain lo requiere.
+- Si compilas en entornos más nuevos, `make` en `ProyectoPracticoTlp/Entrega3` genera el ejecutable sin dependencias adicionales.
+
 ## 📂 Estructura del Proyecto
 ```
 ProyectoTlp/
