@@ -66,12 +66,12 @@ void ScriptInterpreter::executeCall(const json &callNode) {
         std::string type = args.size() > 0 ? args[0].get<std::string>() : "default";
         int x = args.size() > 1 ? args[1].get<int>() : 0;
         int y = args.size() > 2 ? args[2].get<int>() : 0;
-        Engine::spawnBlock(type, Engine::Vec2{x,y});
+        Engine::spawnBlock(type, x, y);
     } else if(name == "moveEntity") {
         int id = args.size()>0 ? args[0].get<int>() : 0;
         int dx = args.size()>1 ? args[1].get<int>() : 0;
         int dy = args.size()>2 ? args[2].get<int>() : 0;
-        Engine::moveEntity(id, Engine::Vec2{dx,dy});
+        Engine::moveEntity(id, dx, dy);
     } else if(name == "rotateEntity") {
         int id = args.size()>0 ? args[0].get<int>() : 0;
         Engine::rotateEntity(id);
@@ -79,8 +79,10 @@ void ScriptInterpreter::executeCall(const json &callNode) {
         int id = args.size()>0 ? args[0].get<int>() : 0;
         Engine::dropEntity(id);
     } else if(name == "addScore") {
-        int s = args.size()>0 ? args[0].get<int>() : 0;
-        Engine::addScore(s);
+        // COMENTADO: El puntaje se maneja internamente en api.cpp
+        // int s = args.size()>0 ? args[0].get<int>() : 0;
+        // Engine::addScore(s);
+        std::cout << "[Interpreter] addScore ignorado (manejado internamente por el motor)\n";
     } else if(name == "setScore") {
         int s = args.size()>0 ? args[0].get<int>() : 0;
         Engine::setScore(s);

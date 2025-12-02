@@ -1,0 +1,55 @@
+# Makefile.win32 – build cruzado para Windows XP 32-bit usando SDL 1.2.15
+
+CXX := i686-w64-mingw32-g++
+
+# Ruta REAL de SDL 1.2.15 MinGW (ajusta solo si cambiaste esta carpeta)
+SDL_DIR  := /home/sebastian/Escritorio/SDL-devel-1.2.15-mingw32/SDL-1.2.15
+SDL_INC  := $(SDL_DIR)/include
+SDL_LIB  := $(SDL_DIR)/lib
+
+SRCDIR := src
+BINDIR := bin
+TARGET := $(BINDIR)/motor_xp.exe
+
+# Fuentes C++
+SRCS := \
+	$(SRCDIR)/integration_main.cpp \
+	$(SRCDIR)/engine/api.cpp \
+	$(SRCDIR)/interpreter/script_interpreter.cpp
+
+# Si quieres seguir usando el stub de tu amigo, déjalo aquí.
+# OJO: ya no usamos getthreadid_stub, porque era para SDL2.
+STUB_OBJS := $(SRCDIR)/winxp/vista_stubs.o
+
+CXXFLAGS := -std=c++17 -Os -s \
+	-Ithird_party -Isrc \
+	-I$(SDL_INC) -I$(SDL_INC)/SDL \
+	-march=i686 -mno-sse2 \
+	-static-libstdc++ -static-libgcc \
+	-D_WIN32_WINNT=0x0501 -DWINVER=0x0501 \
+	-DSDL_MAIN_HANDLED
+
+# NO SDLmain, NO SDL2, NO -mwindows.
+# Dejamos que el CRT quiera WinMain@16 y se lo vamos a dar nosotros en el .cpp
+LDFLAGS := \
+	-L$(SDL_LIB) \
+	-lSDL \
+	-lgdi32 \
+	-Wl,--allow-multiple-definition
+
+.PHONY: all clean dirs
+
+all: dirs $(TARGET)
+
+dirs:
+	@mkdir -p $(BINDIR)
+
+# Stub precompilado (no lo recompilamos)
+$(SRCDIR)/winxp/vista_stubs.o:
+	@echo "Usando stub precompilado $@"
+
+$(TARGET): $(SRCS) $(STUB_OBJS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+clean:
+	rm -rf $(BINDIR)

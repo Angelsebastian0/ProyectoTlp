@@ -1,35 +1,22 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "XP-SDL1",
             "includePath": [
                 "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/**",
                 "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/src",
                 "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/third_party",
-                "/usr/include",
-                "/usr/include/SDL2"
-            ],
-            "defines": [],
-            "compilerPath": "/usr/bin/g++",
-            "cStandard": "c17",
-            "cppStandard": "gnu++17",
-            "intelliSenseMode": "linux-gcc-x64"
-        },
-        {
-            "name": "WindowsXP",
-            "includePath": [
-                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/**",
-                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/src",
-                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/third_party",
-                "${workspaceFolder}/ProyectoPracticoTlp/Entrega3/SDL2/include"
+
+                "/home/sebastian/Escritorio/SDL-devel-1.2.15-mingw32/SDL-1.2.15/include",
+                "/home/sebastian/Escritorio/SDL-devel-1.2.15-mingw32/SDL-1.2.15/include/SDL"
             ],
             "defines": [
                 "_WIN32"
             ],
-            "compilerPath": "C:/MinGW/bin/g++.exe",
+            "compilerPath": "/usr/bin/i686-w64-mingw32-g++",
             "cStandard": "c17",
             "cppStandard": "gnu++17",
-            "intelliSenseMode": "windows-gcc-x86"
+            "intelliSenseMode": "linux-gcc-x86"
         }
     ],
     "version": 4
